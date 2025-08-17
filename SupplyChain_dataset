@@ -1,0 +1,419 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 17.6
+-- Dumped by pg_dump version 17.0
+
+-- Started on 2025-08-17 13:43:54 CEST
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 873 (class 1247 OID 16496)
+-- Name: txn_enum; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.txn_enum AS ENUM (
+    'IN',
+    'OUT'
+);
+
+
+ALTER TYPE public.txn_enum OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 219 (class 1259 OID 16434)
+-- Name: customers; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.customers (
+    customer_id integer NOT NULL,
+    customer_name character varying(100) NOT NULL,
+    region character varying(50),
+    contact character varying(100)
+);
+
+
+ALTER TABLE public.customers OWNER TO postgres;
+
+--
+-- TOC entry 223 (class 1259 OID 16490)
+-- Name: inventory_transactions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.inventory_transactions (
+    txn_id integer NOT NULL,
+    product_id integer,
+    txn_type public.txn_enum,
+    quantity integer NOT NULL,
+    txn_date date NOT NULL
+);
+
+
+ALTER TABLE public.inventory_transactions OWNER TO postgres;
+
+--
+-- TOC entry 221 (class 1259 OID 16460)
+-- Name: order_items; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.order_items (
+    order_item_id integer NOT NULL,
+    order_id integer,
+    product_id integer,
+    quantity integer NOT NULL,
+    unit_price numeric(10,2) NOT NULL
+);
+
+
+ALTER TABLE public.order_items OWNER TO postgres;
+
+--
+-- TOC entry 220 (class 1259 OID 16439)
+-- Name: orders; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.orders (
+    order_id integer NOT NULL,
+    customer_id integer,
+    order_date date NOT NULL,
+    status character varying(20) DEFAULT 'pending'::character varying,
+    total_amount numeric(10,2)
+);
+
+
+ALTER TABLE public.orders OWNER TO postgres;
+
+--
+-- TOC entry 217 (class 1259 OID 16410)
+-- Name: products; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.products (
+    product_id integer NOT NULL,
+    name character varying(100) NOT NULL,
+    category character varying(50),
+    price numeric(10,2) NOT NULL,
+    stock_quantity integer DEFAULT 0
+);
+
+
+ALTER TABLE public.products OWNER TO postgres;
+
+--
+-- TOC entry 222 (class 1259 OID 16475)
+-- Name: shipments; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.shipments (
+    shipment_id integer NOT NULL,
+    order_id integer,
+    supplier_id integer,
+    ship_date date,
+    delivery_date date,
+    shipment_status character varying(50)
+);
+
+
+ALTER TABLE public.shipments OWNER TO postgres;
+
+--
+-- TOC entry 218 (class 1259 OID 16418)
+-- Name: suppliers; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.suppliers (
+    supplier_id integer NOT NULL,
+    name character varying(100) NOT NULL,
+    contact character varying(100),
+    reliability_score numeric(3,2)
+);
+
+
+ALTER TABLE public.suppliers OWNER TO postgres;
+
+--
+-- TOC entry 3753 (class 0 OID 16434)
+-- Dependencies: 219
+-- Data for Name: customers; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.customers (customer_id, customer_name, region, contact) FROM stdin;
+21	Rahul Sharma	Delhi	rahul@gmail.com
+22	Priya Mehta	Mumbai	priya@gmail.com
+23	John Smith	Bangalore	john@gmail.com
+24	Sneha Iyer	Chennai	sneha@gmail.com
+25	Amit Patel	Ahmedabad	amit@gmail.com
+26	Emily Davis	Hyderabad	emily@gmail.com
+27	Karan Verma	Pune	karan@gmail.com
+28	Sophia Lee	Kolkata	sophia@gmail.com
+\.
+
+
+--
+-- TOC entry 3757 (class 0 OID 16490)
+-- Dependencies: 223
+-- Data for Name: inventory_transactions; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.inventory_transactions (txn_id, product_id, txn_type, quantity, txn_date) FROM stdin;
+51	1	OUT	1	2025-07-28
+52	2	OUT	1	2025-07-30
+53	5	OUT	1	2025-08-01
+54	3	OUT	1	2025-08-02
+55	10	OUT	1	2025-08-05
+56	7	OUT	7	2025-08-05
+57	6	OUT	10	2025-08-06
+58	9	OUT	1	2025-08-08
+59	8	OUT	2	2025-08-08
+60	4	OUT	1	2025-08-10
+71	5	OUT	1	2025-08-10
+\.
+
+
+--
+-- TOC entry 3755 (class 0 OID 16460)
+-- Dependencies: 221
+-- Data for Name: order_items; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.order_items (order_item_id, order_id, product_id, quantity, unit_price) FROM stdin;
+41	31	1	1	75000.00
+42	32	2	1	40000.00
+43	33	5	1	15000.00
+44	34	3	1	25000.00
+45	35	10	1	2000.00
+46	35	7	7	100.00
+47	36	6	10	50.00
+48	37	9	1	2500.00
+49	37	8	2	300.00
+50	38	4	1	7000.00
+51	38	5	1	15000.00
+\.
+
+
+--
+-- TOC entry 3754 (class 0 OID 16439)
+-- Dependencies: 220
+-- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.orders (order_id, customer_id, order_date, status, total_amount) FROM stdin;
+31	21	2025-07-28	Completed	75000.00
+32	22	2025-07-30	Completed	40000.00
+33	23	2025-08-01	Pending	15000.00
+34	24	2025-08-02	Completed	25000.00
+35	25	2025-08-05	Pending	2000.00
+36	26	2025-08-06	Completed	500.00
+37	27	2025-08-08	Pending	2700.00
+38	28	2025-08-10	Completed	22000.00
+\.
+
+
+--
+-- TOC entry 3751 (class 0 OID 16410)
+-- Dependencies: 217
+-- Data for Name: products; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.products (product_id, name, category, price, stock_quantity) FROM stdin;
+1	Laptop	Electronics	75000.00	50
+2	Smartphone	Electronics	40000.00	100
+3	Tablet	Electronics	25000.00	60
+4	Desk Chair	Furniture	7000.00	30
+5	Office Desk	Furniture	15000.00	20
+6	Notebook	Stationery	50.00	500
+7	Pen Pack	Stationery	100.00	300
+8	Water Bottle	Lifestyle	300.00	80
+9	Headphones	Electronics	2500.00	70
+10	Backpack	Lifestyle	2000.00	40
+\.
+
+
+--
+-- TOC entry 3756 (class 0 OID 16475)
+-- Dependencies: 222
+-- Data for Name: shipments; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.shipments (shipment_id, order_id, supplier_id, ship_date, delivery_date, shipment_status) FROM stdin;
+51	31	11	2025-07-29	2025-08-01	\N
+52	32	12	2025-07-31	2025-08-02	\N
+53	33	13	2025-08-02	\N	\N
+54	34	11	2025-08-03	2025-08-06	\N
+55	35	12	2025-08-06	\N	\N
+56	36	14	2025-08-07	2025-08-09	\N
+57	37	12	2025-08-09	\N	\N
+58	38	11	2025-08-11	2025-08-13	\N
+61	31	11	2025-07-29	2025-08-01	Delivered
+62	32	12	2025-07-31	2025-08-02	Delivered
+63	33	13	2025-08-02	\N	In Transit
+64	34	11	2025-08-03	2025-08-06	Delivered
+65	35	12	2025-08-06	\N	In Transit
+66	36	14	2025-08-07	2025-08-09	Delivered
+67	37	12	2025-08-09	\N	In Transit
+68	38	11	2025-08-11	2025-08-13	Delivered
+\.
+
+
+--
+-- TOC entry 3752 (class 0 OID 16418)
+-- Dependencies: 218
+-- Data for Name: suppliers; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.suppliers (supplier_id, name, contact, reliability_score) FROM stdin;
+11	ABC Supplies	abc@supplies.com	0.95
+12	FastDelivery Ltd	fast@delivery.com	0.90
+13	Global Traders	global@traders.com	0.85
+14	TechWorld Imports	tech@world.com	0.92
+\.
+
+
+--
+-- TOC entry 3591 (class 2606 OID 16438)
+-- Name: customers customers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customers
+    ADD CONSTRAINT customers_pkey PRIMARY KEY (customer_id);
+
+
+--
+-- TOC entry 3599 (class 2606 OID 16494)
+-- Name: inventory_transactions inventory_transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.inventory_transactions
+    ADD CONSTRAINT inventory_transactions_pkey PRIMARY KEY (txn_id);
+
+
+--
+-- TOC entry 3595 (class 2606 OID 16464)
+-- Name: order_items order_items_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.order_items
+    ADD CONSTRAINT order_items_pkey PRIMARY KEY (order_item_id);
+
+
+--
+-- TOC entry 3593 (class 2606 OID 16444)
+-- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_pkey PRIMARY KEY (order_id);
+
+
+--
+-- TOC entry 3587 (class 2606 OID 16417)
+-- Name: products products_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT products_pkey PRIMARY KEY (product_id);
+
+
+--
+-- TOC entry 3585 (class 2606 OID 16433)
+-- Name: suppliers reliability_score; Type: CHECK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.suppliers
+    ADD CONSTRAINT reliability_score CHECK (((reliability_score >= (0)::numeric) AND (reliability_score <= (1)::numeric))) NOT VALID;
+
+
+--
+-- TOC entry 3597 (class 2606 OID 16479)
+-- Name: shipments shipments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shipments
+    ADD CONSTRAINT shipments_pkey PRIMARY KEY (shipment_id);
+
+
+--
+-- TOC entry 3589 (class 2606 OID 16424)
+-- Name: suppliers suppliers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.suppliers
+    ADD CONSTRAINT suppliers_pkey PRIMARY KEY (supplier_id);
+
+
+--
+-- TOC entry 3600 (class 2606 OID 16445)
+-- Name: orders fk_customer; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES public.customers(customer_id);
+
+
+--
+-- TOC entry 3601 (class 2606 OID 16465)
+-- Name: order_items fk_order_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.order_items
+    ADD CONSTRAINT fk_order_id FOREIGN KEY (order_id) REFERENCES public.orders(order_id);
+
+
+--
+-- TOC entry 3603 (class 2606 OID 16480)
+-- Name: shipments fk_order_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shipments
+    ADD CONSTRAINT fk_order_id FOREIGN KEY (order_id) REFERENCES public.orders(order_id);
+
+
+--
+-- TOC entry 3602 (class 2606 OID 16470)
+-- Name: order_items fk_product_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.order_items
+    ADD CONSTRAINT fk_product_id FOREIGN KEY (product_id) REFERENCES public.products(product_id);
+
+
+--
+-- TOC entry 3605 (class 2606 OID 16501)
+-- Name: inventory_transactions fk_product_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.inventory_transactions
+    ADD CONSTRAINT fk_product_id FOREIGN KEY (product_id) REFERENCES public.products(product_id) NOT VALID;
+
+
+--
+-- TOC entry 3604 (class 2606 OID 16485)
+-- Name: shipments fk_supplier_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shipments
+    ADD CONSTRAINT fk_supplier_id FOREIGN KEY (supplier_id) REFERENCES public.suppliers(supplier_id);
+
+
+-- Completed on 2025-08-17 13:43:55 CEST
+
+--
+-- PostgreSQL database dump complete
+--
+
